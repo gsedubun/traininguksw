@@ -5,7 +5,11 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSql" Version="2.1.1.1" />
+    <PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSql" Version="2.1.2" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="models\" />
   </ItemGroup>
 
 </Project>

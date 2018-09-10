@@ -2,13 +2,16 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.HttpsPolicy;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using smo_data.models;
 
 namespace smo_web
 {
@@ -30,9 +33,26 @@ namespace smo_web
                 options.CheckConsentNeeded = context => true;
                 options.MinimumSameSitePolicy = SameSiteMode.None;
             });
+            services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme).AddCookie(opt=>
+            {
+                opt.LoginPath = new PathString("/Security/login");
+                opt.LogoutPath =new PathString("/Security/Signout");
+                opt.ExpireTimeSpan = TimeSpan.FromMinutes(30);
+                opt.SlidingExpiration = false;
+                opt.AccessDeniedPath = new PathString("/Security/denied");
+            });
+            //var sqlconnstring = "Host=localhost;Database=postgres;username=postgres;password=postgres";
+            var sqlconnstring = Configuration.GetConnectionString("postgresconnstring");
+            services.AddEntityFrameworkNpgsql().AddDbContext<TrainingUKSWContext>(options =>
+            {
+                options.UseNpgsql(sqlconnstring);
+
+            });
 
 
             services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_1);
+
+            services.AddScoped<TrainingUKSWContext>(_ => new TrainingUKSWContext(Configuration));
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -47,7 +67,7 @@ namespace smo_web
                 app.UseExceptionHandler("/Home/Error");
                 app.UseHsts();
             }
-
+            app.UseAuthentication();
             app.UseHttpsRedirection();
             app.UseStaticFiles();
             app.UseCookiePolicy();

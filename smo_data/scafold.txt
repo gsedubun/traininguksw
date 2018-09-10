@@ -1,2 +1,2 @@
- dotnet ef dbcontext scaffold "Host=localhost;Database=demoDB;username=postgres;password=rahasia" Npgsql.EntityFrameworkCore.PostgreSQL --startup-project ..\smo
+ dotnet ef dbcontext scaffold "Host=localhost;Database=postgres;username=postgres;password=postgres" Npgsql.EntityFrameworkCore.PostgreSQL --startup-project ..\smo
 _web\smo_web.csproj -o models

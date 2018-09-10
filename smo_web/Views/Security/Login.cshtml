@@ -1,0 +1,23 @@
+@{
+    ViewData["Title"] = "Login";
+}
+
+@model LoginViewModel
+<h2>@ViewData["Title"]</h2>
+<p>@ViewData["Message"].<br/>
+   
+</p>
+     @Html.ValidationSummary(true)
+
+<div class="form-group col-xs-12" >
+    
+    <form  method="post" class="panel panel-default col-md-5" >
+     <div class="panel-body">
+        <label>Username</label>
+        <input type="text" asp-for="UserName" class="form-control"/>
+        <label>Password</label>
+    <input type="password" asp-for="Password" class="form-control"/>
+    <input  type="submit" value="Login" class="btn btn-default"/>
+    </div>
+    </form>
+</div>
