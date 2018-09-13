@@ -30,7 +30,74 @@ namespace smo_web.Controllers
             SignOut(CookieAuthenticationDefaults.AuthenticationScheme).ExecuteResult(ControllerContext);
             return View();
         }
+        public IActionResult Register(){
+            ViewData["Title"] = "Register";
+            return View();
+        }
+        [HttpPost]
+         [AllowAnonymous]
+        [ValidateAntiForgeryToken]
+        public IActionResult Register(RegisterViewModel registerViewModel){
+            if(ModelState.IsValid){
+                var newuser = new TrUser(){
+                    UserName=registerViewModel.UserName,
+                    Email=registerViewModel.Email,
+                    Password=registerViewModel.Password,
+                    FullName=registerViewModel.FullName
+                };
+                var user  = Db.TrUser.Add(newuser);
+                var new_user_role = new TtUserRole(){ RoleId=2, UserId=newuser.UserId };
+                var userrole = Db.TtUserRole.Add(new_user_role);
+                var inserted = Db.SaveChanges();
+                
+                if(inserted>0)
+                 {
+                   Response.Redirect("/Home");
+                 }   
 
+            }
+            return BadRequest();
+        }
+        // public ClaimsPrincipal AuthUser(string userName, string Password){
+        //         var user = Db.TrUser.SingleOrDefault(d => d.UserName == userName && d.Password == Password);
+        //         if (user != null)
+        //         {
+        //             var role = (from ur in Db.TtUserRole
+        //                         join r in Db.TrRole on ur.RoleId equals r.RoleId
+        //                         select new { Role = r.RoleName, ur.User }
+        //             ).ToList();
+
+        //             if (role == null)
+        //                 return null;
+
+        //             var claims = new List<Claim>();
+        //             claims.Add(new Claim(ClaimTypes.NameIdentifier, userName));
+        //             claims.Add(new Claim(ClaimTypes.Name, userName));
+        //             claims.Add(new Claim(ClaimTypes.Email, user.Email));
+        //             foreach (var r in role)
+        //             {
+        //                 claims.Add(new Claim(ClaimTypes.Role, r.Role));
+        //             }
+        //             var identity = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);
+        //             var principal = new ClaimsPrincipal(identity);
+
+        //             // // set authentication properties
+        //             // var authProps = new AuthenticationProperties
+        //             // {
+        //             //     IsPersistent = false,
+        //             // };
+        //             // if (!string.IsNullOrEmpty(ReturnUrl))
+        //             //     authProps.RedirectUri = ReturnUrl;
+        //             // else
+        //             //     authProps.RedirectUri = "/Home";
+
+        //             // var s = SignIn(principal, CookieAuthenticationDefaults.AuthenticationScheme);
+        //             // s.Properties = authProps;
+
+        //             return principal;
+        //         }
+        //         return null;
+        // }
         [HttpPost]
         [AllowAnonymous]
         [ValidateAntiForgeryToken]
@@ -38,7 +105,6 @@ namespace smo_web.Controllers
         {
             if (ModelState.IsValid)
             {
-                // set claimsidentity
                 var user = Db.TrUser.SingleOrDefault(d => d.UserName == loginViewModel.UserName && d.Password == loginViewModel.Password);
                 if (user != null)
                 {
@@ -48,12 +114,12 @@ namespace smo_web.Controllers
                     ).ToList();
 
                     if (role == null)
-                        return View(loginViewModel);
+                        return null;
 
                     var claims = new List<Claim>();
                     claims.Add(new Claim(ClaimTypes.NameIdentifier, loginViewModel.UserName));
                     claims.Add(new Claim(ClaimTypes.Name, loginViewModel.UserName));
-                    claims.Add(new Claim(ClaimTypes.Email, loginViewModel.UserName));
+                    claims.Add(new Claim(ClaimTypes.Email, user.Email));
                     foreach (var r in role)
                     {
                         claims.Add(new Claim(ClaimTypes.Role, r.Role));
@@ -61,7 +127,6 @@ namespace smo_web.Controllers
                     var identity = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);
                     var principal = new ClaimsPrincipal(identity);
 
-                    // set authentication properties
                     var authProps = new AuthenticationProperties
                     {
                         IsPersistent = false,
@@ -74,16 +139,49 @@ namespace smo_web.Controllers
                     var s = SignIn(principal, CookieAuthenticationDefaults.AuthenticationScheme);
                     s.Properties = authProps;
 
-                    //RedirectToAction("Index","Home");
                     return s;
-                    //RedirectToActionPermanent("Index","Home");
                 }
+                // set claimsidentity
+                // var user = Db.TrUser.SingleOrDefault(d => d.UserName == loginViewModel.UserName && d.Password == loginViewModel.Password);
+                // if (user != null)
+                // {
+                //     var role = (from ur in Db.TtUserRole
+                //                 join r in Db.TrRole on ur.RoleId equals r.RoleId
+                //                 select new { Role = r.RoleName, ur.User }
+                //     ).ToList();
+
+                //     if (role == null)
+                //         return View(loginViewModel);
+
+                //     var claims = new List<Claim>();
+                //     claims.Add(new Claim(ClaimTypes.NameIdentifier, loginViewModel.UserName));
+                //     claims.Add(new Claim(ClaimTypes.Name, loginViewModel.UserName));
+                //     claims.Add(new Claim(ClaimTypes.Email, loginViewModel.UserName));
+                //     foreach (var r in role)
+                //     {
+                //         claims.Add(new Claim(ClaimTypes.Role, r.Role));
+                //     }
+                //     var identity = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);
+                //     var principal = new ClaimsPrincipal(identity);
+
+                //     // set authentication properties
+                //     var authProps = new AuthenticationProperties
+                //     {
+                //         IsPersistent = false,
+                //     };
+                //     if (!string.IsNullOrEmpty(ReturnUrl))
+                //         authProps.RedirectUri = ReturnUrl;
+                //     else
+                //         authProps.RedirectUri = "/Home";
+
+                //     var s = SignIn(principal, CookieAuthenticationDefaults.AuthenticationScheme);
+                //     s.Properties = authProps;
+
+                //     return s;
+                // }
                 else
                 {
-                    //ModelState.AddModelError("InvalidLogin", new System.Exception("username and password is invalid."));
                     ModelState.AddModelError(string.Empty, "Username and Password is invalid.");
-                    //ViewData["Message"]="Username and Password is invalid.";
-
                 }
             }
             return View(loginViewModel);

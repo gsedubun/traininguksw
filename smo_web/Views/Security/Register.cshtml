@@ -1,0 +1,23 @@
+@model RegisterViewModel
+<h2>@ViewData["Title"]</h2>
+
+   
+     @Html.ValidationSummary(true)
+
+<div class="form-group col-xs-12" >
+    
+    <form  method="post" class="panel panel-default col-md-5" >
+     <div class="panel-body">
+        <label>Username</label>
+        <input type="text" asp-for="UserName" class="form-control"/>
+         <label>Email</label>
+        <input type="text" asp-for="Email" class="form-control"/>
+         <label>Full name</label>
+        <input type="text" asp-for="FullName" class="form-control"/>
+        <label>Password</label>
+        <input type="password" asp-for="Password" class="form-control"/>
+        <input  type="submit" value="Register" class="btn btn-default"/>
+        <!-- <input type="clear" value="Clear" class="btn btn-default"/> -->
+    </div>
+    </form>
+</div>
